@@ -121,12 +121,20 @@ class VaultTreeParser(object):
         for key in self.keys:
             for key_path, value in key.items():
                 kv_name = key_path.split('/')[0]
-                create_response = self.vault.secrets.kv.v2.create_or_update_secret(
-                    path=key_path,
-                    secret=value,
-                    mount_point=kv_name
-                )
-                self.logger.info("%s: %s" % (key_path, json.dumps(create_response)))
+                read_response = self.vault.secrets.kv.v2.read_secret(
+                    key_path,
+                    mount_point=kv_name,
+                    )
+                if not read_response['data']['data'] == value:
+                    create_response = self.vault.secrets.kv.v2.create_or_update_secret(
+                        path=key_path,
+                        secret=value,
+                        mount_point=kv_name,
+                        cas=0
+                    )
+                    self.logger.info("%s: %s" % (key_path, json.dumps(create_response)))
+                else:
+                    self.logger.info("%s: %s" % (key_path, 'Key data is already exists.'))
 
 
     def dump_keys(self):
