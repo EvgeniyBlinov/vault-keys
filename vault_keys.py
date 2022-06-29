@@ -121,7 +121,7 @@ class VaultTreeParser(object):
         for key in self.keys:
             for key_path, value in key.items():
                 kv_name = key_path.split('/')[0]
-                create_response = self.vault.kv.v2.create_or_update_secret(
+                create_response = self.vault.secrets.kv.v2.create_or_update_secret(
                     path=key_path,
                     secret=value,
                     mount_point=kv_name
