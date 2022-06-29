@@ -162,8 +162,11 @@ def main():
 
     vtp = VaultTreeParser(logger, crypter, vault, KV_BASE_DIR)
     vtp.parse_dirs()
-    # vtp.dump_keys()
-    vtp.apply_keys()
+
+    if os.getenv('DRY_RUN'):
+        vtp.dump_keys()
+    else:
+        vtp.apply_keys()
 
 if __name__ == '__main__':
     main()
