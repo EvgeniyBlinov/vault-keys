@@ -120,14 +120,23 @@ class VaultTreeParser(object):
         """docstring for apply_keys"""
         for key in self.keys:
             for key_path, value in key.items():
-                kv_name = key_path.split('/')[0]
-                read_response = self.vault.secrets.kv.v2.read_secret(
-                    key_path,
-                    mount_point=kv_name,
-                    )
-                if not read_response['data']['data'] == value:
+                kv_parts = key_path.split('/')
+                kv_name = kv_parts.pop(0)
+                kv_key_path = '/'.join(kv_parts)
+
+                old_key_value = None
+                try:
+                    read_response = self.vault.secrets.kv.v2.read_secret_version(
+                        mount_point=kv_name,
+                        path=kv_key_path,
+                        )
+                    old_key_value = read_response['data']['data']
+                except hvac.exceptions.InvalidPath:
+                    pass
+
+                if not old_key_value == value:
                     create_response = self.vault.secrets.kv.v2.create_or_update_secret(
-                        path=key_path,
+                        path=kv_key_path,
                         secret=value,
                         mount_point=kv_name,
                         cas=0
