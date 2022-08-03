@@ -18,6 +18,10 @@ import hvac
 import requests
 import logging
 
+# @TODO:  <02-08-22, Evgeniy Blinov <evgeniy_blinov@mail.ru>> : DEBUG
+import sys
+from pprint import pprint
+
 
 def get_vault_client(logger, certs=None):
         logger.debug('Retrieving a vault (hvac) client...')
@@ -90,6 +94,8 @@ class VaultTreeParser(object):
             return {'value': str(key['value'])}
         if "token" in key:
             return {'token': str(key['token'])}
+        if "tls.key" in key and 'tls.crt' in key:
+            return {'tls.crt': str(key['tls.crt']), 'tls.key': str(key['tls.key'])}
 
 
     def read_all_keys(self, crypter: AnsibleVaultEncryptedUnicode,  keys_file: str, path: str) -> list:
@@ -131,19 +137,22 @@ class VaultTreeParser(object):
                         path=kv_key_path,
                         )
                     old_key_value = read_response['data']['data']
-                except hvac.exceptions.InvalidPath:
+                except hvac.exceptions.InvalidPath as e:
                     pass
 
-                if not old_key_value == value:
-                    create_response = self.vault.secrets.kv.v2.create_or_update_secret(
-                        path=kv_key_path,
-                        secret=value,
-                        mount_point=kv_name,
-                        cas=0
-                    )
-                    self.logger.info("%s: %s" % (key_path, json.dumps(create_response)))
-                else:
+                if old_key_value and  old_key_value == value:
                     self.logger.info("%s: %s" % (key_path, 'Key data is already exists.'))
+                else:
+                    try:
+                        create_response = self.vault.secrets.kv.v2.create_or_update_secret(
+                            path=kv_key_path,
+                            secret=value,
+                            mount_point=kv_name,
+                            cas=0
+                        )
+                        self.logger.info("%s: %s" % (key_path, json.dumps(create_response)))
+                    except hvac.exceptions.InvalidRequest as e:
+                        self.logger.error('Error: InvalidRequest %s : %s' % (kv_key_path, str(e)))
 
 
     def dump_keys(self):
