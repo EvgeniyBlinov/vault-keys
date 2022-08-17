@@ -18,10 +18,6 @@ import hvac
 import requests
 import logging
 
-# @TODO:  <02-08-22, Evgeniy Blinov <evgeniy_blinov@mail.ru>> : DEBUG
-import sys
-from pprint import pprint
-
 
 def get_vault_client(logger, certs=None):
         logger.debug('Retrieving a vault (hvac) client...')
@@ -147,8 +143,7 @@ class VaultTreeParser(object):
                         create_response = self.vault.secrets.kv.v2.create_or_update_secret(
                             path=kv_key_path,
                             secret=value,
-                            mount_point=kv_name,
-                            cas=0
+                            mount_point=kv_name
                         )
                         self.logger.info("%s: %s" % (key_path, json.dumps(create_response)))
                     except hvac.exceptions.InvalidRequest as e:
