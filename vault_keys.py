@@ -166,6 +166,10 @@ def main():
     # create console handler and set level to debug
     ch = logging.StreamHandler()
 
+    dry_run = False
+    if os.getenv('DRY_RUN'):
+        dry_run = True
+
     if os.getenv('VERBOSE'):
         logger.setLevel(logging.DEBUG)
         ch.setLevel(logging.DEBUG)
@@ -177,14 +181,17 @@ def main():
     vault_password_file = os.getenv('ANSIBLE_VAULT_PASSWORD_FILE')
     crypter = AnsibleVaultCrypter(vault_password_file)
 
-    vault = get_vault_client(logger)
+    if dry_run:
+        vault = None
+    else:
+        vault = get_vault_client(logger)
 
     KV_BASE_DIR = "./kv/"
 
     vtp = VaultTreeParser(logger, crypter, vault, KV_BASE_DIR)
     vtp.parse_dirs()
 
-    if os.getenv('DRY_RUN'):
+    if dry_run:
         vtp.dump_keys()
     else:
         vtp.apply_keys()
