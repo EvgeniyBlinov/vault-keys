@@ -58,7 +58,7 @@ python3 -m pip install -e .
 Install from dir for installation checking
 
 ```
-python3 -m pip install -U  git+file://${PWD} estimate
+python3 -m pip install -U  git+file://${PWD} vault-keys
 ```
 
 ## License
