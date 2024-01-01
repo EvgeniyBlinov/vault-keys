@@ -11,7 +11,7 @@ class AnsibleVaultCrypter(object):
     """Docstring for AnsibleVaultCrypter """
 
 
-    def __init__(self, vault_password_file):
+    def __init__(self, vault_password_file: str):
         loader = DataLoader()
         secret = get_file_vault_secret(filename=vault_password_file, loader=loader)
         secret.load()

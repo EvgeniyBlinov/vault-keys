@@ -5,11 +5,11 @@ class CustomLogger(object):
 
     """Docstring for CustomLogger. """
 
-    def __init__(self, verbose=False):
+    def __init__(self, verbose: bool=False):
         """TODO: to be defined. """
         self.verbose = verbose
 
-    def getLogger(self, name):
+    def getLogger(self, name: str):
         """docstring for getLogger"""
         logger = logging.getLogger(__name__)
 

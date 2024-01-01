@@ -10,7 +10,7 @@ install_reqs = parse_requirements('requirements.txt')
 
 setup(
     name='vault-keys',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(),
     install_requires=install_reqs,
     long_description=open(join(dirname(__file__), 'README.md')).read(),
